@@ -35,6 +35,7 @@ class yolov3:
 
 
     def compute_loss(self):
+        Loss_0_raw = {}
         with tf.name_scope('Loss_0'):
             matching_true_boxes, detectors_mask, loc_scale = preprocess_true_boxes(self.truth,
                                                                                    self.anchors0,
@@ -64,6 +65,10 @@ class yolov3:
             loss3 = objectness_loss + cord_loss
 
         self.loss = loss1 + loss2 + loss3
+        # loss1, loss2, loss3 = loss1, loss2, loss3
+        for i in ('loss1', 'loss2', 'loss3'):
+            Loss_0_raw[i] = locals()[i]
+        # return self.loss, Loss_0_raw
         return self.loss
 
     def pedict(self, img_hw, iou_threshold=0.5, score_threshold=0.5):
@@ -128,9 +133,3 @@ class yolov3:
         classes = tf.gather(classes, idx_nms)
 
         return boxes, scores, classes
-
-
-
-
-
-

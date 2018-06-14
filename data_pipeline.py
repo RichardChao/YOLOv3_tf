@@ -50,7 +50,7 @@ def data_pipeline(file_tfrecords, batch_size):
 
 
 if __name__ == '__main__':
-    file_path = 'trainval0712.tfrecords'
+    file_path = 'trainval0712_416.tfrecords'
     imgs, true_boxes = data_pipeline(file_path, cfg.batch_size)
     sess = tf.Session()
     imgs_, true_boxes_ = sess.run([imgs, true_boxes])

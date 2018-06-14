@@ -24,7 +24,7 @@ class yolo_head:
         self.conv55 = self.conv_layer(self.conv54, 3, 1, 512, 1024, True, 'conv_head_55')   # 13x1024
         self.conv56 = self.conv_layer(self.conv55, 1, 1, 1024, 512, True, 'conv_head_56')   # 13x512
         self.conv57 = self.conv_layer(self.conv56, 3, 1, 512, 1024, True, 'conv_head_57')   # 13x1024
-        self.conv58 = self.conv_layer(self.conv57, 1, 1, 1024, 75, False, 'conv_head_58')   # 13x75
+        self.conv58 = self.conv_layer(self.conv57, 1, 1, 1024, 105, False, 'conv_head_58')   # 13x125
         # follow yolo layer mask = 6,7,8
         self.conv59 = self.conv_layer(self.conv56, 1, 1, 512, 256, True, 'conv_head_59')    # 13x256
         size = tf.shape(self.conv59)[1]
@@ -37,7 +37,7 @@ class yolo_head:
         self.conv63 = self.conv_layer(self.conv62, 3, 1, 256, 512, True, 'conv_head_63')    # 26x512
         self.conv64 = self.conv_layer(self.conv63, 1, 1, 512, 256, True, 'conv_head_64')    # 26x256
         self.conv65 = self.conv_layer(self.conv64, 3, 1, 256, 512, True, 'conv_head_65')    # 26x512
-        self.conv66 = self.conv_layer(self.conv65, 1, 1, 512, 75, False, 'conv_head_66')    # 26x75
+        self.conv66 = self.conv_layer(self.conv65, 1, 1, 512, 105, False, 'conv_head_66')    # 26x125
         # follow yolo layer mask = 3,4,5
         self.conv67 = self.conv_layer(self.conv64, 1, 1, 256, 128, True, 'conv_head_67')    # 26x128
         size = tf.shape(self.conv67)[1]
@@ -50,7 +50,7 @@ class yolo_head:
         self.conv71 = self.conv_layer(self.conv70, 3, 1, 128, 256, True, 'conv_head_71')    # 52x256
         self.conv72 = self.conv_layer(self.conv71, 1, 1, 256, 128, True, 'conv_head_72')    # 52x128
         self.conv73 = self.conv_layer(self.conv72, 3, 1, 128, 256, True, 'conv_head_73')    # 52x256
-        self.conv74 = self.conv_layer(self.conv73, 1, 1, 256, 75, False, 'conv_head_74')    # 52x75
+        self.conv74 = self.conv_layer(self.conv73, 1, 1, 256, 105, False, 'conv_head_74')    # 52x125
         # follow yolo layer mask = 0,1,2
 
         return self.conv74, self.conv66, self.conv58
@@ -126,7 +126,6 @@ class yolo_det:
         self.box_xy = (box_xy + conv_index) / conv_dims  # relative the whole img [0, 1]
         self.box_wh = box_wh * anchors_tensor / img_dims  # relative the whole img [0, 1]
         self.loc_txywh = tf.concat([box_xy, box_twh], axis=-1)
-
         return self.box_xy, self.box_wh, self.box_confidence, self.box_class_probs, self.loc_txywh
         # box_xy: [None, 13, 13, 3, 2]
         # box_wh: [None, 13, 13, 3, 2]

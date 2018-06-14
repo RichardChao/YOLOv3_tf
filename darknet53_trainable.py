@@ -216,7 +216,7 @@ class Darknet53:
                                       out_channels=1024, name='conv_51')            # 13x1024
         self.res23 = self.conv51 + self.res21                                       # 13x1024
         return self.res23
-
+        # return self.conv0
 
 
 

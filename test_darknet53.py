@@ -2,7 +2,9 @@ import tensorflow as tf
 from darknet53_trainable import Darknet53
 import cv2
 import numpy as np
-model = Darknet53(darknet53_npz_path='darknet53.conv.74.npz')
+from data_pipeline import data_pipeline
+
+model = Darknet53(darknet53_npz_path='darknet53.conv.74.npz', scratch = True)
 img_holder = tf.placeholder(tf.float32, shape=(None, 416, 416, 3), name='img')
 phase_train = tf.placeholder(tf.bool, shape=(), name='phase_train')
 feat_ex = model.build(img_holder, phase_train)
@@ -16,7 +18,7 @@ print(bias)
 #
 # print(len(tf.trainable_variables()))
 # print(model.conv3)
-img = cv2.imread('bladerrunner.jpg')
+img = cv2.imread('.\\image\\8SSD10A09755L1NJ35S002R_1.jpg')
 img = cv2.resize(img, (416, 416), interpolation=cv2.INTER_AREA)
 img = np.expand_dims(img, axis=0)
 # print(img.shape)

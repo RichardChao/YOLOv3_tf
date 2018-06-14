@@ -3,15 +3,13 @@ import numpy as np
 import os
 import tensorflow as tf
 from PIL import Image
+from config import getLabels
+import glob
+# sets = [('2007', 'trainval'), ('2012', 'trainval')]
 
 
-sets = [('2007', 'trainval'), ('2012', 'trainval')]
-
-
-classes = ["aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
-           "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
-
-
+classes = getLabels()
+sample_size = 1600
 def convert(size, box):
     dw = 1./size[0]
     dh = 1./size[1]
@@ -26,8 +24,8 @@ def convert(size, box):
     return [x, y, w, h]
 
 
-def convert_annotation(year, image_id):
-    in_file = open('/home/raytroop/Dataset4ML/VOC%s/VOCdevkit/VOC%s/Annotations/%s.xml'%(year, year, image_id))
+def convert_annotation(image_id):
+    in_file = open('C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\annotation\\%s.xml'%(image_id))
 
     tree = ET.parse(in_file)
     root = tree.getroot()
@@ -52,28 +50,30 @@ def convert_annotation(year, image_id):
 
     return np.array(bboxes, dtype=np.float32).flatten().tolist()
 
-def convert_img(year, image_id):
-    image = Image.open('/home/raytroop/Dataset4ML/VOC%s/VOCdevkit/VOC%s/JPEGImages/%s.jpg' % (year, year, image_id))
-    resized_image = image.resize((416, 416), Image.BICUBIC)
+def convert_img(image_id):
+    image = Image.open('C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\CID_Photo\\%s.jpg'%(image_id))
+    resized_image = image.resize((sample_size, sample_size), Image.BICUBIC)
     image_data = np.array(resized_image, dtype='float32')/255
     img_raw = image_data.tobytes()
     return img_raw
 
-filename = os.path.join('trainval'+'0712'+'.tfrecords')
+filename = os.path.join('trainval'+'0712_'+str(sample_size)+'.tfrecords')
 writer = tf.python_io.TFRecordWriter(filename)
-for year, image_set in sets:
-    image_ids = open('/home/raytroop/Dataset4ML/VOC%s/VOCdevkit/VOC%s/ImageSets/Main/%s.txt' % (
-        year, year, image_set)).read().strip().split()
-    # print(filename)
-    for image_id in image_ids:
-        xywhc = convert_annotation(year, image_id)
-        img_raw = convert_img(year, image_id)
 
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'xywhc':
-                    tf.train.Feature(float_list=tf.train.FloatList(value=xywhc)),
-            'img':
-                    tf.train.Feature(bytes_list=tf.train.BytesList(value=[img_raw])),
-            }))
-        writer.write(example.SerializeToString())
+os.chdir('C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\annotation')
+image_ids = os.listdir('.')
+image_ids = glob.glob(str(image_ids) + '*.xml')
+# print(filename)
+for image_id in image_ids:
+    image_id = image_id.split('.')[0]
+    xywhc = convert_annotation(image_id)
+    img_raw = convert_img(image_id)
+
+    example = tf.train.Example(features=tf.train.Features(feature={
+        'xywhc':
+                tf.train.Feature(float_list=tf.train.FloatList(value=xywhc)),
+        'img':
+                tf.train.Feature(bytes_list=tf.train.BytesList(value=[img_raw])),
+        }))
+    writer.write(example.SerializeToString())
 writer.close()
