@@ -12,10 +12,10 @@ def parser(example):
     coord = tf.reshape(coord, [30, 5])
 
     img = tf.decode_raw(feats['img'], tf.float32)
-    img = tf.reshape(img, [416, 416, 3])
+    img = tf.reshape(img, [608, 608, 3])
     img = tf.image.resize_images(img, [cfg.train.image_resized, cfg.train.image_resized])
     rnd = tf.less(tf.random_uniform(shape=[], minval=0, maxval=2), 1)
-
+    #rnd is part of data Augmentation
     def flip_img_coord(_img, _coord):
         zeros = tf.constant([[0, 0, 0, 0, 0]]*30, tf.float32)
         img_flipped = tf.image.flip_left_right(_img)
@@ -50,7 +50,7 @@ def data_pipeline(file_tfrecords, batch_size):
 
 
 if __name__ == '__main__':
-    file_path = 'trainval0712_416.tfrecords'
+    file_path = 'trainval0712_608.tfrecords'
     imgs, true_boxes = data_pipeline(file_path, cfg.batch_size)
     sess = tf.Session()
     imgs_, true_boxes_ = sess.run([imgs, true_boxes])

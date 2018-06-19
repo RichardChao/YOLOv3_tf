@@ -4,7 +4,7 @@ import numpy as np
 from collections import defaultdict
 from collections import namedtuple
 
-weights_path = "darknet53.conv.74"
+weights_path = "yolov3.weights"
 config_path = "yolov3-voc.cfg"
 conv_bn = namedtuple('conv_bn', ['bias', 'gamma', 'mean', 'variance', 'conv_weights'])
 weights_dict = {}
@@ -116,4 +116,4 @@ for section in cfg_parser.sections():
         raise ValueError(
             'Unsupported section header type: {}'.format(section))
 weights_file.close()
-np.savez('darknet53.conv.74.npz', **weights_dict)
+np.savez('yolov3.npz', **weights_dict)
