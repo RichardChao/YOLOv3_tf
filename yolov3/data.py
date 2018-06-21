@@ -50,12 +50,15 @@ def convert_annotation(annotation_dir, image_id):
 
     return np.array(bboxes, dtype=np.float32).flatten().tolist()
 
+
 def convert_img(image_dir, image_id):
     image = Image.open(image_dir + '\\%s.jpg'%(image_id))
     resized_image = image.resize((cfg.sample_size, cfg.sample_size), Image.BICUBIC)
     image_data = np.array(resized_image, dtype='float32')/255
     # img_raw = image_data.tobytes()
     return image_data
+
+
 def shuffle(image_dir, annotation_dir):
     # get all image id
     os.chdir(annotation_dir)
@@ -74,11 +77,24 @@ def shuffle(image_dir, annotation_dir):
                 image_id = train_instance.split('.')[0]
                 xywhc = convert_annotation(annotation_dir, image_id)
                 coord = np.reshape(xywhc, [30, 5])
-
+                # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
                 image_data = convert_img(image_dir, image_id)
                 img = np.reshape(image_data, [cfg.sample_size, cfg.sample_size, 3])
-                # for data Augmentation
-                # img = tf.image.resize_images(img, [cfg.train.image_resized, cfg.train.image_resized])
+                # data Aug
+                # rnd = tf.less(tf.random_uniform(shape=[], minval=0, maxval=2), 1)
+                #
+                # # rnd is part of data Augmentation
+                # def flip_img_coord(_img, _coord):
+                #     zeros = tf.constant([[0, 0, 0, 0, 0]] * 30, tf.float32)
+                #     img_flipped = tf.image.flip_left_right(_img)
+                #     idx_invalid = tf.reduce_all(tf.equal(coord, 0), axis=-1)
+                #     coord_temp = tf.concat([tf.minimum(tf.maximum(1 - _coord[:, :1], 0), 1),
+                #                             _coord[:, 1:]], axis=-1)
+                #     coord_flipped = tf.where(idx_invalid, zeros, coord_temp)
+                #     return img_flipped, coord_flipped
+                #
+                # img, coord = tf.cond(rnd, lambda: (tf.identity(img), tf.identity(coord)),
+                #                      lambda: flip_img_coord(img, coord))
 
                 if coord is None: continue
                 try:

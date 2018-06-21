@@ -16,7 +16,7 @@ __C = edict()
 cfg = __C
 
 __C.anchors = np.array([[10, 13], [16, 30], [33, 23], [30, 61], [62, 45], [59, 119], [116, 90], [156, 198], [373, 326]])
-__C.classes = 30  # any change made to this must also change yolo_head.py(yolo_head()) and make sure last layer have 3*(class + 5) filters for each detector ()
+__C.classes = 30  # any change made to this must also change yolo_head.py(yolo_head()) and make sure last layer have 3*(class + 5) or N*(class + 4 + 1) for N=3 in yolo v3 and 4 location cord and 1 class filters for each detector ()
 __C.num = 9
 __C.num_anchors_per_layer = 3
 

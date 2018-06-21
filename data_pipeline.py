@@ -54,6 +54,7 @@ if __name__ == '__main__':
     imgs, true_boxes = data_pipeline(file_path, cfg.batch_size)
     sess = tf.Session()
     imgs_, true_boxes_ = sess.run([imgs, true_boxes])
+
     print(imgs_.shape, true_boxes_.shape)
     for imgs_i, boxes_ in zip(imgs_, true_boxes_):
         valid = (np.sum(boxes_, axis=-1) > 0).tolist()

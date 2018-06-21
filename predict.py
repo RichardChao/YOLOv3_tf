@@ -4,12 +4,13 @@ import tensorflow as tf
 from config import cfg
 from PIL import Image, ImageDraw, ImageFont
 from draw_boxes import draw_boxes
+import cv2
 import matplotlib.pyplot as plt
 
 
 # IMG_ID ='008957'
 # image_test = Image.open('/home/raytroop/Dataset4ML/VOC2007/VOCdevkit/VOC2007/JPEGImages/{}.jpg'.format(IMG_ID))
-image_test = Image.open('image/703631661850_1.jpg')
+image_test = Image.open('image/1528345075496.jpg')
 resized_image = image_test.resize((cfg.sample_size, cfg.sample_size), Image.BICUBIC)
 image_data = np.array(resized_image, dtype='float32')
 
@@ -20,7 +21,7 @@ cfg.scratch = True
 
 model = yolov3(imgs_holder, None, istraining)
 img_hw = tf.placeholder(dtype=tf.float32, shape=[2])
-boxes, scores, classes = model.pedict(img_hw, iou_threshold=0.5, score_threshold=0.001)
+boxes, scores, classes = model.pedict(img_hw, iou_threshold=0.5, score_threshold=0.005)
 
 saver = tf.train.Saver()
 ckpt_dir = 'ckpt/'
@@ -36,11 +37,15 @@ with tf.Session() as sess:
                                                     imgs_holder: np.reshape(image_data / 255, [1, cfg.sample_size, cfg.sample_size, 3])})
 
     image_draw = draw_boxes(np.array(image_test, dtype=np.float32) / 255, boxes_, classes_, cfg.names, scores=scores_)
-    fig = plt.figure(frameon=False)
-    ax = plt.Axes(fig, [0, 0, 1, 1])
-    ax.set_axis_off()
-    fig.add_axes(ax)
-    plt.imshow(image_draw)
-    fig.savefig('prediction.jpg')
-    plt.show()
+    # cv2.imshow("prediction.png", cv2.cvtColor(image_draw, cv2.COLOR_RGB2BGR))
+    cv2.imwrite("prediction.jpg", cv2.cvtColor(image_draw, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
+    cv2.waitKey(0)
+    # fig = plt.figure(frameon=False)
+    # ax = plt.Axes(fig, [0, 0, 1, 1])
+    # ax.set_axis_off()
+    # fig.add_axes(ax)
+    # plt.imshow(image_draw, interpolation='none')
+    # plt.savefig('C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\prediction.jpg', dpi='figure', interpolation='none')
+    # # fig.savefig('prediction.jpg')
+    # plt.show()
 
