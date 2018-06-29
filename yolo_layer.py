@@ -18,13 +18,14 @@ class yolo_head:
                 act = conv
         return act
     def build(self, feat_ex, res18, res10):
+        final_filter_num = 3*(cfg.classes + 5)
         self.conv52 = self.conv_layer(feat_ex, 1, 1, 1024, 512, True, 'conv_head_52')  		# 13x512
         self.conv53 = self.conv_layer(self.conv52, 3, 1, 512, 1024, True, 'conv_head_53')   # 13x1024
         self.conv54 = self.conv_layer(self.conv53, 1, 1, 1024, 512, True, 'conv_head_54')   # 13x512
         self.conv55 = self.conv_layer(self.conv54, 3, 1, 512, 1024, True, 'conv_head_55')   # 13x1024
         self.conv56 = self.conv_layer(self.conv55, 1, 1, 1024, 512, True, 'conv_head_56')   # 13x512
         self.conv57 = self.conv_layer(self.conv56, 3, 1, 512, 1024, True, 'conv_head_57')   # 13x1024
-        self.conv58 = self.conv_layer(self.conv57, 1, 1, 1024, 105, False, 'conv_head_58')   # 13x125
+        self.conv58 = self.conv_layer(self.conv57, 1, 1, 1024, final_filter_num, False, 'conv_head_58')   # 13x125
         # follow yolo layer mask = 6,7,8
         self.conv59 = self.conv_layer(self.conv56, 1, 1, 512, 256, True, 'conv_head_59')    # 13x256
         size = tf.shape(self.conv59)[1]
@@ -37,7 +38,7 @@ class yolo_head:
         self.conv63 = self.conv_layer(self.conv62, 3, 1, 256, 512, True, 'conv_head_63')    # 26x512
         self.conv64 = self.conv_layer(self.conv63, 1, 1, 512, 256, True, 'conv_head_64')    # 26x256
         self.conv65 = self.conv_layer(self.conv64, 3, 1, 256, 512, True, 'conv_head_65')    # 26x512
-        self.conv66 = self.conv_layer(self.conv65, 1, 1, 512, 105, False, 'conv_head_66')    # 26x125
+        self.conv66 = self.conv_layer(self.conv65, 1, 1, 512, final_filter_num, False, 'conv_head_66')    # 26x125
         # follow yolo layer mask = 3,4,5
         self.conv67 = self.conv_layer(self.conv64, 1, 1, 256, 128, True, 'conv_head_67')    # 26x128
         size = tf.shape(self.conv67)[1]
@@ -50,7 +51,7 @@ class yolo_head:
         self.conv71 = self.conv_layer(self.conv70, 3, 1, 128, 256, True, 'conv_head_71')    # 52x256
         self.conv72 = self.conv_layer(self.conv71, 1, 1, 256, 128, True, 'conv_head_72')    # 52x128
         self.conv73 = self.conv_layer(self.conv72, 3, 1, 128, 256, True, 'conv_head_73')    # 52x256
-        self.conv74 = self.conv_layer(self.conv73, 1, 1, 256, 105, False, 'conv_head_74')    # 52x125
+        self.conv74 = self.conv_layer(self.conv73, 1, 1, 256, final_filter_num, False, 'conv_head_74')    # 52x125
         # follow yolo layer mask = 0,1,2
 
         return self.conv74, self.conv66, self.conv58

@@ -2,13 +2,10 @@ from yolo_top import yolov3
 import numpy as np
 import tensorflow as tf
 from yolov3.data import shuffle
-from config import cfg
+from config import cfg, image_dir, annotation_dir, ckpt_dir
 import os
 import pickle
 
-
-image_dir = 'C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\CID_Photo'
-annotation_dir = 'C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\annotation'
 # img, truth = shuffle(image_dir, annotation_dir)
 # print(img,truth)
 img_holder = tf.placeholder(tf.float32, shape=(cfg.batch_size, cfg.train.image_resized, cfg.train.image_resized, 3), name='img_holder')
@@ -23,7 +20,7 @@ loss = model.compute_loss()
 # optimizer
 global_step = tf.Variable(0, trainable=False)
 # lr = tf.train.exponential_decay(0.0001, global_step=global_step, decay_steps=2e4, decay_rate=0.1)
-lr = tf.train.piecewise_constant(global_step, [500, 1500], [1e-3, 1e-4, 1e-5])
+lr = tf.train.piecewise_constant(global_step, cfg.lr_thresh, cfg.lr_array)
 optimizer = tf.train.AdamOptimizer(learning_rate=lr)
 # optimizer = tf.train.MomentumOptimizer(learning_rate=lr, momentum=0.9)
 update_op = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
@@ -33,12 +30,13 @@ vars_det = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="Head")
 with tf.control_dependencies(update_op):
     train_op = optimizer.minimize(loss, global_step=global_step, var_list=vars_det)
 saver = tf.train.Saver()
-ckpt_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\ckpt\\'
 
-cfg.batch_per_epoch = 3020
 # data Aug, padding & notation conversion not added, 1600 only
-image_resized = [1600, 1280, 960]
-
+image_resized = [1600]
+# , 1440, 1280
+# , 1280, 960
+cfg.anchors = (1600 / 416) * cfg.anchors
+cfg.anchors = cfg.anchors.astype(int)
 gs = 0
 
 def train(size):

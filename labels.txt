@@ -21,10 +21,3 @@ DM8
 MD1
 MD2
 MD3
-empty1
-empty2
-empty3
-empty4
-empty5
-empty6
-empty7
