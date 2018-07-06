@@ -4,7 +4,7 @@ import os
 import glob
 import xml.etree.ElementTree as ET
 from config import getLabels
-import Image
+from PIL import Image
 from config import cfg, annotation_dir_deep
 from numpy.random import permutation as perm
 from pathlib import Path
@@ -83,7 +83,7 @@ def shuffle(image_dir, annotation_dir):
         image_ids = os.listdir('.')
         image_ids = glob.glob(str(image_ids) + '*.xml')
     # get batches
-    batch_per_epoch = cfg.batch_per_epoch
+    batch_per_epoch = len(image_ids)
     batch_size = cfg.batch_size
     print('total_epoch:', cfg.total_epoch)
     print('batch_per_epoch:', batch_per_epoch)
@@ -106,10 +106,10 @@ def shuffle(image_dir, annotation_dir):
                         image_data = convert_img(image_dir, image_id, train_instance[1])
                     else:
                         image_id = train_instance.split('.')[0]
-                        xywhc = convert_annotation(annotation_dir, image_id)
+                        xywhc = convert_annotation(annotation_dir, image_id, None)
                         coord = np.reshape(xywhc, [30, 5])
                         # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
-                        image_data = convert_img(image_dir, image_id)
+                        image_data = convert_img(image_dir, image_id, None)
                     img = np.reshape(image_data, [cfg.sample_size, cfg.sample_size, 3])
 
                     # data Aug
