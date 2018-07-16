@@ -5,7 +5,7 @@ __C = edict()
 # Consumers can get config by:
 #   from config import cfg
 cfg = __C
-
+repo_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf'
 # train with real camera data
 # image_dir = 'C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\CID_Photo'
 # annotation_dir = 'C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\CID_project_dataset\\annotation'
@@ -34,7 +34,8 @@ __C.image_format = 'jpg'
 
 ckpt_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\ckpt\\'
 
-testset = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\testset'
+# testset = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\testset'
+testset = 'C:\\Users\\P900\\Desktop\\myWork\\dmg_inspect_YOLOv3\\lcd_test_dir\\testset\\scanner_withoutCID'
 result_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\result'
 def getLabels():
     with open(label_dir, 'r') as f:
@@ -53,7 +54,7 @@ __C.num_anchors_per_layer = 3
 
 __C.batch_size = 1
 __C.sample_size = 1600
-__C.total_epoch = 10
+__C.total_epoch = 20
 __C.batch_per_epoch = 500000
 
 __C.lr_thresh = [100, 600]
