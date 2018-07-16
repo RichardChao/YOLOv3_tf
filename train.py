@@ -35,7 +35,7 @@ saver = tf.train.Saver()
 image_resized = [1600]
 # , 1440, 1280
 # , 1280, 960
-cfg.anchors = (image_resized[-1] / 416) * cfg.anchors
+# cfg.anchors = (image_resized[-1] / 416) * cfg.anchors
 cfg.anchors = cfg.anchors.astype(int)
 gs = 0
 

@@ -14,25 +14,28 @@ cfg = __C
 # __C.image_format = 'jpg'
 
 # train with real scanner data
-# image_dir = 'C:\\LenovoBox\\Richard Cao\\Sync\\upload_CID_pic\\图片'
-# annotation_dir = 'C:\\LenovoBox\\Richard Cao\\Sync\\upload_CID_pic\\标记'
-# label_dir = 'labels.txt'
-# annotation_dir_deep = False
-# __C.image_format = 'jpg'
+image_dir = 'C:\\Users\\P900\\Desktop\\myWork\\upload_CID_pic\\图片'
+annotation_dir = 'C:\\Users\\P900\\Desktop\\myWork\\upload_CID_pic\\标记'
+label_dir = 'labels.txt'
+annotation_dir_deep = False
+__C.image_format = 'jpg'
 
 
 # train with ImageNet Dataset
 # image_dir = 'D:\\dataset\\ILSVRC 2014 DET train\\images\\ILSVRC_2014'
 # annotation_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\LSVRC2014_annotation'
-image_dir = 'D:\\dataset\\ILSVRC 2014 DET train\\images'
+# image_dir = 'D:\\dataset\\ILSVRC 2014 DET train\\images'
 # annotation_dir = 'D:\\ILSVRC2012_bbox_train_v2'
-annotation_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\LSVRC2013_annotation'
-annotation_dir_deep = True
-label_dir = 'LSVRC2014_label_200.txt'
-__C.image_format = 'JPEG'
+# annotation_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\LSVRC2013_annotation'
+# annotation_dir_deep = True
+# label_dir = 'LSVRC2014_label_200.txt'
+# __C.image_format = 'JPEG'
 
 
 ckpt_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\ckpt\\'
+
+testset = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\testset'
+result_dir = 'C:\\Users\\P900\\Desktop\\myWork\\YOLOv3_tf\\result'
 def getLabels():
     with open(label_dir, 'r') as f:
         a = list()
@@ -50,10 +53,10 @@ __C.num_anchors_per_layer = 3
 
 __C.batch_size = 1
 __C.sample_size = 1600
-__C.total_epoch = 1
+__C.total_epoch = 10
 __C.batch_per_epoch = 500000
 
-__C.lr_thresh = [10, 50]
+__C.lr_thresh = [100, 600]
 __C.lr_array = [1e-3, 1e-4, 1e-5]
 
 __C.scratch = False  # darknet53.conv.74.npz has issue, turn scrach on or test other weights
