@@ -78,7 +78,7 @@ def draw_xml(image, boxes, box_classes, class_names, scores=None, image_id=''):
         ET.SubElement(bndbox, "xmin").text = str(left)
         ET.SubElement(bndbox, "ymax").text = str(top)
         ET.SubElement(bndbox, "ymin").text = str(bottom)
-        print(str(class_names[cls_idx]), (left, top), (right, bottom))
+        # print(str(class_names[cls_idx]), (left, top), (right, bottom))
 
     root = indent(root)
     tree = ET.ElementTree(root)
@@ -119,7 +119,7 @@ def do_predict(image_ids):
                 print('predict:', image_id)
                 tree = draw_xml(np.array(image_test, dtype=np.float32) / 255, boxes_, classes_, cfg.names, scores=scores_, image_id=image_id)
 
-                tree.write(result_dir + '\\predicted_xmls\\{}.xml'.format(image_id))
+                tree.write(result_dir + '\\predicted_xmls\\{}.xml'.format(image_id.split('.')[0]))
                 cv2.imwrite(result_dir + '\\' + image_id, cv2.cvtColor(image_draw, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
                 # fig = plt.figure(frameon=False)
                 # ax = plt.Axes(fig, [0, 0, 1, 1])

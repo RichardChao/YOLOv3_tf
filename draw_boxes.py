@@ -56,7 +56,7 @@ def draw_boxes(image, boxes, box_classes, class_names, scores=None):
         box = boxes[i]
         if isinstance(scores, np.ndarray):
             score = scores[i]
-            label = '{} {:.4f}'.format(box_class, score)
+            label = '{} {:.2f}'.format(box_class, score)
         else:
             label = '{}'.format(box_class)
 
