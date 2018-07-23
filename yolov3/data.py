@@ -83,7 +83,7 @@ def shuffle(image_dir, annotation_dir):
         image_ids = os.listdir('.')
         image_ids = glob.glob(str(image_ids) + '*.xml')
     # get batches
-    batch_per_epoch = len(image_ids)
+    batch_per_epoch = cfg.batch_per_epoch
     batch_size = cfg.batch_size
     print('total_epoch:', cfg.total_epoch)
     print('batch_per_epoch:', batch_per_epoch)
@@ -91,7 +91,7 @@ def shuffle(image_dir, annotation_dir):
     print('image_ids length:', len(image_ids))
     for i in range(cfg.total_epoch):
         shuffle_idx = perm(np.arange(len(image_ids)))
-        for b in range(batch_per_epoch):
+        for b in range(min(batch_per_epoch, len(image_ids)) - 1):
             img_batch = None
             coord_batch = None
             try:

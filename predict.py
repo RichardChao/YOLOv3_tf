@@ -1,7 +1,7 @@
 from yolo_top import yolov3
 import numpy as np
 import tensorflow as tf
-from config import cfg, ckpt_dir, testset, result_dir
+from config import cfg, ckpt_dir, testset, result_dir, score_threshold
 from PIL import Image, ImageDraw, ImageFont
 from draw_boxes import draw_boxes
 import cv2
@@ -99,7 +99,7 @@ def do_predict(image_ids):
 
     model = yolov3(imgs_holder, None, istraining)
     img_hw = tf.placeholder(dtype=tf.float32, shape=[2])
-    boxes, scores, classes = model.pedict(img_hw, iou_threshold=0.5, score_threshold=0.02)
+    boxes, scores, classes = model.pedict(img_hw, iou_threshold=0.5, score_threshold=score_threshold)
 
     saver = tf.train.Saver()
 
@@ -117,9 +117,9 @@ def do_predict(image_ids):
                 image_draw = draw_boxes(np.array(image_test, dtype=np.float32) / 255, boxes_, classes_, cfg.names, scores=scores_)
                 # cv2.imshow("prediction.png", cv2.cvtColor(image_draw, cv2.COLOR_RGB2BGR))
                 print('predict:', image_id)
-                tree = draw_xml(np.array(image_test, dtype=np.float32) / 255, boxes_, classes_, cfg.names, scores=scores_, image_id=image_id)
+                # tree = draw_xml(np.array(image_test, dtype=np.float32) / 255, boxes_, classes_, cfg.names, scores=scores_, image_id=image_id)
 
-                tree.write(result_dir + '\\predicted_xmls\\{}.xml'.format(image_id.split('.')[0]))
+                # tree.write(result_dir + '\\predicted_xmls\\{}.xml'.format(image_id.split('.')[0]))
                 cv2.imwrite(result_dir + '\\' + image_id, cv2.cvtColor(image_draw, cv2.COLOR_RGB2BGR), [int(cv2.IMWRITE_PNG_COMPRESSION), 9])
                 # fig = plt.figure(frameon=False)
                 # ax = plt.Axes(fig, [0, 0, 1, 1])
