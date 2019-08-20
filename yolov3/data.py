@@ -3,20 +3,20 @@ import numpy as np
 import os
 import glob
 import xml.etree.ElementTree as ET
+import random
 from config import getLabels
 from PIL import Image
-from config import cfg, annotation_dir_deep
+from config import cfg, annotation_dir_deep, repo_dir
 from numpy.random import permutation as perm
 from pathlib import Path
 
-classes = getLabels()
 def convert(size, box):
     dw = 1./size[0]
     dh = 1./size[1]
     x = (box[0] + box[1])/2.0
     y = (box[2] + box[3])/2.0
-    w = box[1] - box[0]
-    h = box[3] - box[2]
+    w = abs(box[1] - box[0])
+    h = abs(box[3] - box[2])
     x = x*dw
     w = w*dw
     y = y*dh
@@ -25,16 +25,28 @@ def convert(size, box):
 
 
 def convert_annotation(annotation_dir, image_id, folder):
+    classes = getLabels()
     if annotation_dir_deep:
         in_file = open(annotation_dir + '\\%s\\%s.xml'%(folder, image_id))
     else:
-        in_file = open(annotation_dir + '\\%s.xml'%(image_id))
+        try:
+            in_file = open(annotation_dir + '\\%s.xml'%(image_id))
+        except Exception as e:
+            print(e)
+            return False
 
     tree = ET.parse(in_file)
     root = tree.getroot()
     size = root.find('size')
-    w = int(size.find('width').text)
-    h = int(size.find('height').text)
+    try:
+        w = int(size.find('width').text)
+        h = int(size.find('height').text)
+    except Exception as e:
+        print(e)
+        return False
+    if w == 0 or h == 0:
+        print(image_id, '--w,h:', w, h)
+        return False
     bboxes = []
     for i, obj in enumerate(root.iter('object')):
         if i > 29:
@@ -64,8 +76,7 @@ def convert_img(image_dir, image_id, folder):
     # img_raw = image_data.tobytes()
     return image_data
 
-
-def shuffle(image_dir, annotation_dir):
+def get_all_annotation (image_dir, annotation_dir):
     # get all image id
     os.chdir(annotation_dir)
     if annotation_dir_deep:
@@ -82,34 +93,45 @@ def shuffle(image_dir, annotation_dir):
     else:
         image_ids = os.listdir('.')
         image_ids = glob.glob(str(image_ids) + '*.xml')
-    # get batches
-    batch_per_epoch = cfg.batch_per_epoch
+
+    image_ids = image_ids[:]
+    # random.shuffle(image_ids)
+    total = len(image_ids)
     batch_size = cfg.batch_size
     print('total_epoch:', cfg.total_epoch)
-    print('batch_per_epoch:', batch_per_epoch)
     print('batch_size', cfg.batch_size)
     print('image_ids length:', len(image_ids))
-    for i in range(cfg.total_epoch):
+    os.chdir(repo_dir)
+    return image_ids[:int(total*0.8)], image_ids[int(total*0.8):int(total*0.9)], image_ids[int(total*0.9):]
+
+def shuffle(image_dir, annotation_dir, image_ids, total_epoch=1):
+
+    # get batches
+    batch_size = cfg.batch_size
+    batch_per_epoch = int(len(image_ids) / batch_size)
+    for i in range(total_epoch):
         shuffle_idx = perm(np.arange(len(image_ids)))
-        for b in range(min(batch_per_epoch, len(image_ids)) - 1):
+        for b in range(batch_per_epoch):
             img_batch = None
             coord_batch = None
             try:
                 for j in range(b * batch_size, b * batch_size + batch_size):
-
+                    xywhc = None
                     train_instance = image_ids[shuffle_idx[j]]
                     if annotation_dir_deep:
-                        image_id = train_instance[0].split('.')[0]
+                        image_id = train_instance[0].split('.xml')[0]
                         xywhc = convert_annotation(annotation_dir, image_id, train_instance[1])
                         coord = np.reshape(xywhc, [30, 5])
                         # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
                         image_data = convert_img(image_dir, image_id, train_instance[1])
                     else:
-                        image_id = train_instance.split('.')[0]
+                        image_id = train_instance.split('.xml')[0]
                         xywhc = convert_annotation(annotation_dir, image_id, None)
                         coord = np.reshape(xywhc, [30, 5])
                         # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
                         image_data = convert_img(image_dir, image_id, None)
+                    if not xywhc:
+                        continue
                     img = np.reshape(image_data, [cfg.sample_size, cfg.sample_size, 3])
 
                     # data Aug
