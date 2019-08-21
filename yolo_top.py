@@ -6,20 +6,23 @@ from config import cfg
 
 class yolov3:
 
-    def __init__(self, img, truth, istraining, decay_bn=0.99):
+    def __init__(self, img, truth, istraining, decay_bn=0.99, trainable_head=True, trainable_feature_extractor=True):
         self.img = img
         self.truth = truth
         self.istraining = istraining
         self.decay_bn = decay_bn
         self.img_shape = tf.shape(self.img)
+        self.trainable_head = trainable_head
         with tf.variable_scope("Feature_Extractor"):
             feature_extractor = Darknet53(darknet53_npz_path='darknet53.conv.74.npz', scratch=cfg.scratch)
             self.feats52 = feature_extractor.build(self.img, self.istraining, self.decay_bn)
         with tf.variable_scope("Head"):
-            head = yolo_head(self.istraining)
+            head = yolo_head(self.istraining, self.trainable_head)
             self.yolo123, self.yolo456, self.yolo789 = head.build(self.feats52,
                                                                   feature_extractor.res18,
                                                                   feature_extractor.res10)
+            # for i in range(52,)
+            # self.
         with tf.variable_scope("Detection_0"):
             self.anchors0 = tf.constant(cfg.anchors[cfg.train.mask[0]], dtype=tf.float32)
             det = yolo_det(self.anchors0, cfg.classes, self.img_shape)
@@ -32,7 +35,6 @@ class yolov3:
             self.anchors2 = tf.constant(cfg.anchors[cfg.train.mask[2]], dtype=tf.float32)
             det = yolo_det(self.anchors2, cfg.classes, self.img_shape)
             self.pred_xy2, self.pred_wh2, self.pred_confidence2, self.pred_class_prob2, self.loc_txywh2 = det.build(self.yolo789)
-
 
     def compute_loss(self):
         Loss_0_raw = {}

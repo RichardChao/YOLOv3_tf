@@ -42,7 +42,7 @@ def convert_annotation(annotation_dir, image_id, folder):
         w = int(size.find('width').text)
         h = int(size.find('height').text)
     except Exception as e:
-        print(e)
+        # print(e)
         return False
     if w == 0 or h == 0:
         print(image_id, '--w,h:', w, h)
@@ -108,69 +108,74 @@ def shuffle(image_dir, annotation_dir, image_ids, total_epoch=1):
 
     # get batches
     batch_size = cfg.batch_size
-    batch_per_epoch = int(len(image_ids) / batch_size)
+    # batch_per_epoch = int(len(image_ids) / batch_size)
     for i in range(total_epoch):
         shuffle_idx = perm(np.arange(len(image_ids)))
-        for b in range(batch_per_epoch):
-            img_batch = None
-            coord_batch = None
+        img_batch = None
+        coord_batch = None
+        k = 0
+        for j in range(len(image_ids)):
             try:
-                for j in range(b * batch_size, b * batch_size + batch_size):
-                    xywhc = None
-                    train_instance = image_ids[shuffle_idx[j]]
-                    if annotation_dir_deep:
-                        image_id = train_instance[0].split('.xml')[0]
-                        xywhc = convert_annotation(annotation_dir, image_id, train_instance[1])
-                        coord = np.reshape(xywhc, [30, 5])
-                        # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
-                        image_data = convert_img(image_dir, image_id, train_instance[1])
-                    else:
-                        image_id = train_instance.split('.xml')[0]
-                        xywhc = convert_annotation(annotation_dir, image_id, None)
-                        coord = np.reshape(xywhc, [30, 5])
-                        # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
-                        image_data = convert_img(image_dir, image_id, None)
-                    if not xywhc:
-                        continue
-                    img = np.reshape(image_data, [cfg.sample_size, cfg.sample_size, 3])
+                xywhc = None
+                train_instance = image_ids[shuffle_idx[j]]
+                if annotation_dir_deep:
+                    image_id = train_instance[0].split('.xml')[0]
+                    xywhc = convert_annotation(annotation_dir, image_id, train_instance[1])
+                    coord = np.reshape(xywhc, [30, 5])
+                    # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
+                    image_data = convert_img(image_dir, image_id, train_instance[1])
+                else:
+                    image_id = train_instance.split('.xml')[0]
+                    xywhc = convert_annotation(annotation_dir, image_id, None)
+                    coord = np.reshape(xywhc, [30, 5])
+                    # print('imageID:{}, xywhc: {}'.format(image_id, xywhc))
+                    image_data = convert_img(image_dir, image_id, None)
+                if not xywhc:
+                    continue
+                img = np.reshape(image_data, [cfg.sample_size, cfg.sample_size, 3])
 
-                    # data Aug
-                    # rnd = tf.less(tf.random_uniform(shape=[], minval=0, maxval=2), 1)
-                    #
-                    # # rnd is part of data Augmentation
-                    # def flip_img_coord(_img, _coord):
-                    #     zeros = tf.constant([[0, 0, 0, 0, 0]] * 30, tf.float32)
-                    #     img_flipped = tf.image.flip_left_right(_img)
-                    #     idx_invalid = tf.reduce_all(tf.equal(coord, 0), axis=-1)
-                    #     coord_temp = tf.concat([tf.minimum(tf.maximum(1 - _coord[:, :1], 0), 1),
-                    #                             _coord[:, 1:]], axis=-1)
-                    #     coord_flipped = tf.where(idx_invalid, zeros, coord_temp)
-                    #     return img_flipped, coord_flipped
-                    #
-                    # img, coord = tf.cond(rnd, lambda: (tf.identity(img), tf.identity(coord)),
-                    #                      lambda: flip_img_coord(img, coord))
+                # data Aug
+                # rnd = tf.less(tf.random_uniform(shape=[], minval=0, maxval=2), 1)
+                #
+                # # rnd is part of data Augmentation
+                # def flip_img_coord(_img, _coord):
+                #     zeros = tf.constant([[0, 0, 0, 0, 0]] * 30, tf.float32)
+                #     img_flipped = tf.image.flip_left_right(_img)
+                #     idx_invalid = tf.reduce_all(tf.equal(coord, 0), axis=-1)
+                #     coord_temp = tf.concat([tf.minimum(tf.maximum(1 - _coord[:, :1], 0), 1),
+                #                             _coord[:, 1:]], axis=-1)
+                #     coord_flipped = tf.where(idx_invalid, zeros, coord_temp)
+                #     return img_flipped, coord_flipped
+                #
+                # img, coord = tf.cond(rnd, lambda: (tf.identity(img), tf.identity(coord)),
+                #                      lambda: flip_img_coord(img, coord))
 
-                    if coord is None: continue
-                    try:
-                        # coord_batch += [np.expand_dims(coord, 0)]
-                        # img_batch += [np.expand_dims(img, 0)]
-                        # tensor_a = tf.expand_dims(coord, 0)
-                        # tensor_b = tf.expand_dims(img, 0)
-                        if img_batch is None:
-                            img_batch = np.expand_dims(img, 0)
-                        else:
-                            img_batch = np.concatenate([img_batch, np.expand_dims(img, 0)], 0)
+                if coord is None: continue
+                # coord_batch += [np.expand_dims(coord, 0)]
+                # img_batch += [np.expand_dims(img, 0)]
+                # tensor_a = tf.expand_dims(coord, 0)
+                # tensor_b = tf.expand_dims(img, 0)
+                if img_batch is None:
+                    img_batch = np.expand_dims(img, 0)
+                else:
+                    img_batch = np.concatenate([img_batch, np.expand_dims(img, 0)], 0)
 
-                        if coord_batch is None:
-                            coord_batch = np.expand_dims(coord, 0)
-                        else:
-                            coord_batch = np.concatenate([coord_batch, np.expand_dims(coord, 0)], 0)
-                    except:
-                        print('err expand_dims')
-                # coord_batch = np.concatenate(coord_batch, 0)
-                # img_batch = np.concatenate(img_batch, 0)
-                yield img_batch, coord_batch
+                if coord_batch is None:
+                    coord_batch = np.expand_dims(coord, 0)
+                else:
+                    coord_batch = np.concatenate([coord_batch, np.expand_dims(coord, 0)], 0)
+                k += 1
             except Exception as e:
-                print(e)
+                pass
+                # print('shuffle error', e)
                 # print('image:{} has illegal shape'.format(image_id))
-                continue
+                # continue
+            # coord_batch = np.concatenate(coord_batch, 0)
+            # img_batch = np.concatenate(img_batch, 0)
+            if k == batch_size:
+                yield img_batch, coord_batch
+                k = 0
+                img_batch = None
+                coord_batch = None
+
+        # yield None, None
